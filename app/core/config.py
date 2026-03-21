@@ -4,7 +4,7 @@ from functools import lru_cache
 class Settings(BaseSettings):
     GOOGLE_CLIENT_ID : str 
     GOOGLE_SECRET : str 
-    GOOGLE_REDIRECT_URL : str
+    GOOGLE_REDIRECT_URI : str
 
     SECRET_KEY : str 
     REFRESH_TOKEN_EXPIRE_DAYS : int = 7

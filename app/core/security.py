@@ -13,7 +13,7 @@ def create_access_token(user_id:int)->str:
     payload = {
         "exp":expire,
         "jti" : jti,
-        "type" : "access_token",
+        "type" : "access",
         "sub" : str(user_id)
 
     }
@@ -24,7 +24,7 @@ def create_refresh_token(user_id:int)->str:
     jti = str(uuid4())
     payload = {
         "exp": expire,
-        "type": "refresh_token",
+        "type": "refresh",
         "sub": str(user_id),
         "jti": jti
     }
@@ -33,7 +33,7 @@ def create_refresh_token(user_id:int)->str:
 
 def decode_token(token:str)->dict:
     try:
-        payload = jwt.decode(token,settings.SECRET_KEY,algo=settings.ALGORITHM)
+        payload = jwt.decode(token,settings.SECRET_KEY,algorithms=settings.ALGORITHM)
         return payload
     except ExpiredSignatureError:
         raise HTTPException(

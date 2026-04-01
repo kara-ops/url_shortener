@@ -8,7 +8,8 @@ from app.services import auth_service
 from app.core import security 
 from datetime import datetime, timezone
 from app.services import token_service 
-from app.schemas.Oauth_schema import RefreshRequest, TokenResponse
+from app.schemas.Oauth_schema import RefreshRequest, TokenResponse, UserPublic
+from app.core.dependencies import get_current_user
 
 router = APIRouter(prefix="/auth/google", tags =["auth"])
 
@@ -100,6 +101,12 @@ def logout(authorization: str = Header()):
     return {
         "message":"logged out"
     }
+
+
+@router.get("/me", response_model = UserPublic)
+def user_info(current_user = Depends(get_current_user)):
+    return current_user
+
 
     
 

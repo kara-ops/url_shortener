@@ -26,3 +26,18 @@ def is_blacklisted(jti:str)->bool:
     redis = get_redis()
     key = f"blacklist:{jti}"
     return redis.exists(key)==1
+
+def rate_limiter(ip:str)->bool:
+    redis = get_redis()
+    ttl = 60
+    key = f"Login attempts: {ip}"
+    attemps = redis.incr(key)
+    if attemps == 1:
+        redis.expire(key, ttl)
+
+    if attemps == 5:
+        return False
+    else:
+        return True
+
+

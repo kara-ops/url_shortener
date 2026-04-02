@@ -4,6 +4,8 @@ from contextlib import asynccontextmanager
 from app.database.postgres import Sessionlocal
 from app.database.redis import get_redis
 from app.router.auth_routers import router
+from app.router.auth_routers import router as users_router
+
 
 
 

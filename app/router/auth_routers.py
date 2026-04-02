@@ -1,4 +1,4 @@
-from fastapi import APIRouter,Depends, Header, HTTPException 
+from fastapi import APIRouter,Depends, Header, HTTPException, Request
 from sqlalchemy.orm import Session
 from fastapi.responses import RedirectResponse
 from app.core.config import settings
@@ -14,7 +14,19 @@ from app.core.dependencies import get_current_user
 router = APIRouter(prefix="/auth/google", tags =["auth"])
 
 @router.get("/login")
-def google_login():
+def google_login(request : Request)->str:
+    x_forwarded_for = request.headers.get("x-forwarded-for")
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(",")[0]
+    else:
+        ip = request.client.host
+
+    call = token_service.rate_limiter(ip)
+    if not call:
+        raise HTTPException(
+            status_code = 429, detail = "Too many request"
+        )
+
     url = (
         f"https://accounts.google.com/o/oauth2/v2/auth"
         f"?client_id={settings.GOOGLE_CLIENT_ID}"
@@ -106,6 +118,8 @@ def logout(authorization: str = Header()):
 @router.get("/me", response_model = UserPublic)
 def user_info(current_user = Depends(get_current_user)):
     return current_user
+
+
 
 
     

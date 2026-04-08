@@ -90,6 +90,7 @@ def logout(authorization: str = Header()):
         scheme,access = authorization.split()
         if scheme.lower() != "bearer":
             raise Exception()
+        
     except ValueError:
         raise HTTPException(
             status_code = 401,

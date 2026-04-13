@@ -5,6 +5,7 @@ from app.database.postgres import Sessionlocal
 from app.database.redis import get_redis
 from app.router.auth_routers import router as auth_routers
 from app.router.users import router as user_router
+from app.router.url_router import router as url_router
 
 
 
@@ -37,3 +38,4 @@ app = FastAPI(lifespan=lifespan)
 
 app.include_router(auth_routers)
 app.include_router(user_router)
+app.include_router(url_router)

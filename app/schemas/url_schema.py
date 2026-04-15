@@ -23,6 +23,12 @@ class URLStatsResponse(BaseModel):
     click_count : int
     model_config = ConfigDict(from_attributes = True)
 
+class URLRedirect(BaseModel):
+    original_url : str
+
+class RedirectRequest(BaseModel):
+    short_code : str
+
 
 
 

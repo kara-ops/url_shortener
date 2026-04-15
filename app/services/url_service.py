@@ -1,8 +1,8 @@
 import random, string
 from sqlalchemy.orm import Session
 from app.models.url_model import Url
-from datetime import datetime, timezone, timedelta
-from app.services.cache_service import set_url
+from datetime import datetime, timezone, timedelta, tzinfo
+from app.services.cache_service import set_url,get_url,increment_click
 from fastapi import HTTPException
 from app.schemas.url_schema import URLCreate
 
@@ -40,6 +40,39 @@ def create_url(db:Session,original_url,current_user)->Url:
     #     )
 
     return new_url
+
+
+def get_url_by_code(short_code, db:Session):
+    r_check = get_url(short_code) #redis check for url code
+    if r_check:
+        increment_click(short_code)
+        return r_check
+
+    
+    p_check = db.query(Url).filter(Url.short_code == short_code).first() #postgres check for code
+    if not p_check: #if not in postgres
+        raise HTTPException(
+            status_code = 404, detail = "Invalid Url"
+        )
+    activity_check = p_check.is_active #activity check in postgres
+    if not activity_check: #if not active
+        raise HTTPException(
+            status_code = 410, detail = "Url Gone"
+        )
+    expiry_check = p_check.expires_at.replace(tzinfo==timezone.utc)#expiry check
+    if datetime.now(timezone.utc)>expiry_check:
+        raise HTTPException(
+            status_code = 410, detail = "Url Gone"
+        )
+    #Set every thing in redis
+    ttl = int((expiry_check - datetime.now(timezone.utc)).total_seconds())
+
+    original_url = p_check.original_url
+    set_r = set_url(short_code,original_url,ttl)
+    increment_click(short_code)
+    
+    return original_url
+
 
 
 

@@ -106,6 +106,9 @@ def get_url_stats(short_code,db:Session,current_user):
             status_code = 403, detail = "No Authentication"
         )
     p_check.click_count = in_redis
+    db.add(p_check)
+    db.commit()
+    db.refresh(p_check)
     return p_check
 
 

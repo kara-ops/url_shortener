@@ -10,7 +10,7 @@ def get_url(short_code):
     key = short_code
     return redis.get(short_code)
 
-def delete_url(short_code):
+def delete_url_r(short_code):
     redis = get_redis()
     key = short_code
     redis.delete(key)
@@ -19,7 +19,7 @@ def increment_click(short_code):
     redis = get_redis()
     key = short_code
     redis.incr(f"{key}:clicks")
-    
+
 
 
 

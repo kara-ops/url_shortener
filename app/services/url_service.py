@@ -2,7 +2,7 @@ import random, string
 from sqlalchemy.orm import Session
 from app.models.url_model import Url
 from datetime import datetime, timezone, timedelta, tzinfo
-from app.services.cache_service import set_url,get_url,increment_click
+from app.services.cache_service import set_url,get_url,increment_click,delete_url_r
 from fastapi import HTTPException
 from app.schemas.url_schema import URLCreate
 
@@ -74,10 +74,25 @@ def get_url_by_code(short_code, db:Session):
     return original_url
 
 
-def get_user_url(db:Session, current_user)->list[Url]:
+def get_user_by_url(db:Session, current_user)->list[Url]:
     p_check = db.query(Url).filter(Url.user_id==current_user).all()
     return p_check
 
+def deactivate_url(db:Session,short_code,current_user):
+    p_check = db.query(Url).filter(Url.short_code == short_code).first()
+    if not p_check:
+        raise HTTPException(
+            status_code = 404, detail = "Not found"
+        )
+   
+    if current_user.id != p_check.user_id:
+        raise HTTPException(
+            status_code = 403, detail = "Not authorized"
+        )
+    p_check.is_active = False
+    db.commit()
+    delete_url_r(short_code)
+    return p_check
 
 
 

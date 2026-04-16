@@ -24,5 +24,9 @@ def get_user_url(current_user:dict = Depends(get_current_user),db: Session = Dep
     check = url_service.get_user_url(db,current_user.id)
     return check
 
-
+@router.delete("/{short_code}",status_code = 200)
+def delete_url(short_code : str,db:Session = Depends(postgres.get_db),current_user : dict = Depends(get_current_user)):
+    check = url_service.deactivate_url(db,short_code,current_user)
+    return {"message" : "Url deactivated"}
+    
 #cOAB9P

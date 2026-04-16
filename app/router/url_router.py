@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException,Depends
+from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 from app.services import url_service
 from app.schemas.url_schema import URLCreate,URLResponse, URLRedirect,RedirectRequest
@@ -13,9 +14,9 @@ def create_url(request:URLCreate, db:Session = Depends(postgres.get_db),current_
     create_it = url_service.create_url(db,request.original_url,current_user)
     return create_it
 
-@router.get("/")
-def redirect_url(request:RedirectRequest, db : Session = Depends(postgres.get_db)):
-    check = url_service.get_url_by_code(request.short_code,db)
-    return URLRedirect(original_url = check)
+@router.get("/{short_code}")
+def redirect_url(short_code : str, db : Session = Depends(postgres.get_db)):
+    check = url_service.get_url_by_code(short_code,db)
+    return RedirectResponse(url=check,status_code = 302)
 
 

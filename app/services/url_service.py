@@ -59,7 +59,7 @@ def get_url_by_code(short_code, db:Session):
         raise HTTPException(
             status_code = 410, detail = "Url Gone"
         )
-    expiry_check = p_check.expires_at.replace(tzinfo==timezone.utc)#expiry check
+    expiry_check = p_check.expires_at.replace(tzinfo=timezone.utc)#expiry check
     if datetime.now(timezone.utc)>expiry_check:
         raise HTTPException(
             status_code = 410, detail = "Url Gone"

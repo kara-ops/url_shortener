@@ -19,4 +19,10 @@ def redirect_url(short_code : str, db : Session = Depends(postgres.get_db)):
     check = url_service.get_url_by_code(short_code,db)
     return RedirectResponse(url=check,status_code = 302)
 
+@router.get("/", response_model = list[URLResponse])
+def get_user_url(current_user:dict = Depends(get_current_user),db: Session = Depends(postgres.get_db)):
+    check = url_service.get_user_url(db,current_user.id)
+    return check
 
+
+#cOAB9P

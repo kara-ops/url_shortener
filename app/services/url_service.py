@@ -74,6 +74,11 @@ def get_url_by_code(short_code, db:Session):
     return original_url
 
 
+def get_user_url(db:Session, current_user)->list[Url]:
+    p_check = db.query(Url).filter(Url.user_id==current_user).all()
+    return p_check
+
+
 
 
 

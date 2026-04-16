@@ -2,7 +2,7 @@ import random, string
 from sqlalchemy.orm import Session
 from app.models.url_model import Url
 from datetime import datetime, timezone, timedelta, tzinfo
-from app.services.cache_service import set_url,get_url,increment_click,delete_url_r
+from app.services.cache_service import set_url,get_url,increment_click,delete_url_r,get_click_count
 from fastapi import HTTPException
 from app.schemas.url_schema import URLCreate
 
@@ -93,6 +93,22 @@ def deactivate_url(db:Session,short_code,current_user):
     db.commit()
     delete_url_r(short_code)
     return p_check
+
+def get_url_stats(short_code,db:Session,current_user):
+    in_redis = get_click_count(short_code)
+    p_check = db.query(Url).filter(Url.short_code == short_code).first()
+    if not p_check:
+        raise HTTPException(
+            status_code = 404, detail = "Url not found"
+        )
+    if current_user.id != p_check.user_id:
+        raise HTTPException(
+            status_code = 403, detail = "No Authentication"
+        )
+    p_check.click_count = in_redis
+    return p_check
+
+
 
 
 

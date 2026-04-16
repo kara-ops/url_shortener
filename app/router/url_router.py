@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException,Depends
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 from app.services import url_service
-from app.schemas.url_schema import URLCreate,URLResponse, URLRedirect,RedirectRequest
+from app.schemas.url_schema import URLCreate,URLResponse, URLStatsResponse
 from app.database import postgres
 from app.core.dependencies import get_current_user
 
@@ -21,12 +21,18 @@ def redirect_url(short_code : str, db : Session = Depends(postgres.get_db)):
 
 @router.get("/", response_model = list[URLResponse])
 def get_user_url(current_user:dict = Depends(get_current_user),db: Session = Depends(postgres.get_db)):
-    check = url_service.get_user_url(db,current_user.id)
+    check = url_service.get_user_by_url(db,current_user.id)
     return check
 
 @router.delete("/{short_code}",status_code = 200)
 def delete_url(short_code : str,db:Session = Depends(postgres.get_db),current_user : dict = Depends(get_current_user)):
     check = url_service.deactivate_url(db,short_code,current_user)
     return {"message" : "Url deactivated"}
+
+
+@router.get("/{short_code}/stats",response_model = URLStatsResponse)
+def  get_url_stats(short_code : str,db:Session = Depends(postgres.get_db), current_user:dict=Depends(get_current_user)):
+    check = url_service.get_url_stats(short_code,db,current_user)
+    return check
     
-#cOAB9P
+#cOAB9P 

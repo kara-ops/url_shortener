@@ -20,6 +20,12 @@ def increment_click(short_code):
     key = short_code
     redis.incr(f"{key}:clicks")
 
+def get_click_count(short_code:str)->int:
+    redis = get_redis()
+    count =  redis.get(f"{short_code}:clicks")
+    return int(count) if count else 0
+
+
 
 
 

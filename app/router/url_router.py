@@ -1,7 +1,7 @@
-from fastapi import APIRouter, HTTPException,Depends
+from fastapi import APIRouter, HTTPException,Depends, Request
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
-from app.services import url_service
+from app.services import url_service, cache_service
 from app.schemas.url_schema import URLCreate,URLResponse, URLStatsResponse
 from app.database import postgres
 from app.core.dependencies import get_current_user
@@ -15,7 +15,13 @@ def create_url(request:URLCreate, db:Session = Depends(postgres.get_db),current_
     return create_it
 
 @router.get("/{short_code}")
-def redirect_url(short_code : str, db : Session = Depends(postgres.get_db)):
+def redirect_url( request:Request,short_code : str, db : Session = Depends(postgres.get_db)):
+    x_forwarded_for = request.headers.get("x-forwarded-for")
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(",")[0]
+    else:
+        ip = request.client.host
+    call = cache_service.rate_limit_redirect(ip)
     check = url_service.get_url_by_code(short_code,db)
     return RedirectResponse(url=check,status_code = 302)
 

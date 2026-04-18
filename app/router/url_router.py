@@ -22,7 +22,7 @@ def redirect_url( request:Request,short_code : str, db : Session = Depends(postg
     else:
         ip = request.client.host
     call = cache_service.rate_limit_redirect(ip)
-    check = url_service.get_url_by_code(short_code,db)
+    check = url_service.get_url_by_code(short_code,db,ip=ip)
     return RedirectResponse(url=check,status_code = 302)
 
 @router.get("/", response_model = list[URLResponse])

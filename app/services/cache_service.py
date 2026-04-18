@@ -1,5 +1,7 @@
 from app.database.redis import get_redis
 from fastapi import HTTPException
+import logging
+logger = logging.getLogger(__name__)
 
 def set_url(short_code, original_url, ttl:int):
     redis = get_redis()

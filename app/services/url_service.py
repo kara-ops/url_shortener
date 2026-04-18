@@ -5,12 +5,37 @@ from datetime import datetime, timezone, timedelta, tzinfo
 from app.services.cache_service import set_url,get_url,increment_click,delete_url_r,get_click_count
 from fastapi import HTTPException
 from app.schemas.url_schema import URLCreate
+import logging 
+from urllib.parse import urlparse
+import ipaddress
+logger = logging.getLogger(__name__)
+
+def is_url_safe(url:str)-> bool:
+    url_parsed = urlparse(url)
+    hostname = url_parsed.hostname
+    if not hostname:
+        return False
+    blocked = ["localhost", "127.0.0.1", "0.0.0.0"]
+    if hostname in blocked:
+        return False
+    try:
+        ip = ipaddress.ip_address(hostname)
+        if ip.is_private:
+            return False
+    except ValueError:
+        pass
+    return True
+
 
 def generate_short_code():
     result = ''.join(random.choices(string.ascii_letters + string.digits, k = 6))
     return result
 
 def create_url(db:Session,original_url,current_user)->Url:
+    if not is_url_safe(original_url):
+        raise HTTPException(
+            status_code = 400, detail = "URL not allowed"
+        )
     code = 0
     while True:
        code = generate_short_code()
@@ -42,25 +67,30 @@ def create_url(db:Session,original_url,current_user)->Url:
     return new_url
 
 
-def get_url_by_code(short_code, db:Session):
+def get_url_by_code(short_code, db:Session, ip:str):
     r_check = get_url(short_code) #redis check for url code
     if r_check:
+        logger.info(f"REDIRECT | short_code : {short_code} | sourece=redis | ip={ip}")
         increment_click(short_code)
         return r_check
 
     
     p_check = db.query(Url).filter(Url.short_code == short_code).first() #postgres check for code
-    if not p_check: #if not in postgres
+    if not p_check: #if not in postgres++
+        logger.info(f"REDIRECT Failed| Invalid url | short_code:{short_code} | source=postgres | ip={ip}")
         raise HTTPException(
             status_code = 404, detail = "Invalid Url"
         )
+    logger.info(f"REDIRECT | short_code:{short_code} | source=postgres| ip={ip}")
     activity_check = p_check.is_active #activity check in postgres
     if not activity_check: #if not active
+        logger.info(f"REDIRECT Failed | Deactivated | short_code:{short_code} | source=postgres | ip={ip}")
         raise HTTPException(
             status_code = 410, detail = "Url Gone"
         )
     expiry_check = p_check.expires_at.replace(tzinfo=timezone.utc)#expiry check
     if datetime.now(timezone.utc)>expiry_check:
+        logger.info(f"REDIRECT Failed | Expired Url | short_code:{short_code} | source=postgres | ip={ip}")
         raise HTTPException(
             status_code = 410, detail = "Url Gone"
         )
@@ -109,6 +139,9 @@ def get_url_stats(short_code,db:Session,current_user):
     db.commit()
     db.refresh(p_check)
     return p_check
+
+
+
 
 
 

@@ -11,7 +11,7 @@ class Url(Base):
     original_url = Column(String, nullable = False)
     user_id = Column(Integer, ForeignKey("users.id"), nullable = False)
     is_active = Column(Boolean, default = True)
-    expires_at = Column(DateTime, nullable = True)
+    expires_at = Column(DateTime, nullable = False)
     click_count = Column(Integer, default = 0)
     created_at = Column(DateTime, default = lambda : datetime.now(timezone.utc) )
 

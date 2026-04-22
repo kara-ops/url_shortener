@@ -1,11 +1,11 @@
-from pydantic import BaseModel,ConfigDict,AnyHttpUrl
+from pydantic import BaseModel,ConfigDict,HttpUrl
 from datetime import datetime
 
 
 
 
 class URLCreate(BaseModel):
-    original_url : str
+    original_url : HttpUrl
 
 
 class URLResponse(BaseModel):

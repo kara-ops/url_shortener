@@ -31,7 +31,7 @@ def generate_short_code():
     result = ''.join(random.choices(string.ascii_letters + string.digits, k = 6))
     return result
 
-def create_url(db:Session,original_url,current_user)->Url:
+def create_url(db:Session,original_url:str,current_user)->Url:
     if not is_url_safe(original_url):
         raise HTTPException(
             status_code = 400, detail = "URL not allowed"

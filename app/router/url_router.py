@@ -11,7 +11,8 @@ router = APIRouter(prefix = "/urls", tags = ["urls"])
 
 @router.post("/", response_model = URLResponse )
 def create_url(request:URLCreate, db:Session = Depends(postgres.get_db),current_user:dict = Depends(get_current_user)):
-    create_it = url_service.create_url(db,request.original_url,current_user)
+    original_url = request.original_url
+    create_it = url_service.create_url(db,str(original_url),current_user)
     return create_it
 
 @router.get("/{short_code}")

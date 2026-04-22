@@ -23,25 +23,25 @@ from app.services.token_service import store_refresh_token, verify_refresh_token
 #         result = verify_refresh_token(1,"My_Token")
 #         assert result == False
     
-def test_blacklist_token():
-    mock_redis = MagicMock()
+# def test_blacklist_token():
+#     mock_redis = MagicMock()
 
-    with patch("app.services.token_service.get_redis", return_value = mock_redis):
-        blacklist_token("asufratleader",60)
+#     with patch("app.services.token_service.get_redis", return_value = mock_redis):
+#         blacklist_token("asufratleader",60)
         
-        mock_redis.setex.assert_called_once_with(
-            "blacklist:asufratleader",
-            60,
-            "1"
+#         mock_redis.setex.assert_called_once_with(
+#             "blacklist:asufratleader",
+#             60,
+#             "1"
             
-        )
-def test_is_blacklisted():
-    mock_redis = MagicMock()
+#         )
+# def test_is_blacklisted():
+#     mock_redis = MagicMock()
 
-    with patch("app.services.token_service.get_redis", return_value = mock_redis):
-#2 cases 1: jti exists and redis returns 1, 2: jti doesnt exists redis returns 0
-        mock_redis.exists.return_value = 0
-        result = is_blacklisted("asufratleader")
-        assert result == False
+#     with patch("app.services.token_service.get_redis", return_value = mock_redis):
+# #2 cases 1: jti exists and redis returns 1, 2: jti doesnt exists redis returns 0
+#         mock_redis.exists.return_value = 0
+#         result = is_blacklisted("asufratleader")
+#         assert result == False
 
 

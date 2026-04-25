@@ -1,10 +1,11 @@
 from celery import Celery
+from app.core.config import settings
 
 
 celery = Celery(
     "url_shortener",
-    broker = "redis://localhost:6379/0",
-    backend = "redis://localhost:6379/0",
+    broker = settings.REDIS_URL,
+    backend = settings.REDIS_URL,
     include = ["app.tasks.click_sync"]
 )
 celery.conf.worker_pool = "solo"

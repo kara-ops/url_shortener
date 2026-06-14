@@ -1,6 +1,6 @@
 # URL Shortener — FastAPI + Redis + PostgreSQL
 
-A production-grade URL shortener built with FastAPI. Supports Google OAuth 2.0 authentication, URL shortening with Redis cache-aside, click tracking, and hourly background sync via Celery.
+A URL shortener built with FastAPI. Supports Google OAuth 2.0 authentication, URL shortening with Redis cache-aside, click tracking, and hourly background sync via Celery.
 
 ## Tech Stack
 - FastAPI + Uvicorn
